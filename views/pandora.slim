@@ -1,0 +1,62 @@
+.row
+  h3.page-header.station
+.row
+  p.col-md-12
+    strong Now Playing
+    br
+    span.song
+.row
+  p.col-md-12
+    strong Upcoming Songs
+    span.upcoming_songs
+
+.row
+  a.col-xs-3.btn.btn-default onclick='fire_command("pause")'
+    i.glyphicon.glyphicon-pause
+  a.col-xs-3.btn.btn-default onclick='fire_command("next")'
+    i.glyphicon.glyphicon-forward
+  a.col-xs-3.btn.btn-default onclick='fire_command("volup")'
+    i.glyphicon.glyphicon-volume-up
+  a.col-xs-3.btn.btn-default onclick='fire_command("voldown")'
+    i.glyphicon.glyphicon-volume-down
+
+.row
+  a.col-xs-3.btn.btn-default onclick='fire_command("love")'
+    i.glyphicon.glyphicon-heart
+  a.col-xs-3.btn.btn-default onclick='fire_command("ban")'
+    i.glyphicon.glyphicon-ban-circle
+  / a.col-xs-3.btn.btn-default onclick='fire_command("volup")'
+  /   i.glyphicon.glyphicon-volume-up
+  / a.col-xs-3.btn.btn-default onclick='fire_command("voldown")'
+  /   i.glyphicon.glyphicon-volume-down
+
+.row
+  h4 Explanation
+  p.col-md-12.explanation
+
+.row
+  h4 All commands
+  ul
+    - Pandora::COMMANDS.each do |cmd, key|
+      li
+        a href="/pandora/#{cmd}"= cmd
+
+
+coffee:
+  window.fire_command = (cmd) ->
+    $.get("/pandora/#{cmd}")
+
+  update_info = ->
+    for info in ['explanation', 'station', 'song', 'upcoming_songs']
+      update_section(info)
+
+  update_section = (info) ->
+    $.get "/pandora/#{info}", (data) ->
+      if data.length
+        if info is "upcoming_songs"
+          data = "<ol><li>#{data.join("</li><li>")}</li></ol>"
+        $(".#{info}").html(data)
+
+  update_info()
+
+  setInterval(update_info, 2000)

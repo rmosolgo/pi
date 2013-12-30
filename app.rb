@@ -1,54 +1,35 @@
 require 'sinatra'
-require "sinatra/reloader" if development?
+require 'slim'
+require 'coffee-script'
 
-class Pandora
-  COMMANDS = {
-      'love' => '+',
-      'ban' => '-',
-      'bookmark' => 'b',
-      'history' => 'h',
-      'info' => 'i',
-      'next' => 'n',
-      'pause' => 'p',
-      'unpause' => 'p',
-      'tired' => 't',
-      'upcoming' => 'u',
-      'voldown' => '(',
-      'volup' => ')'
-    }
-  LOG_FILE = "~/.config/pianobar/log.log"
-  PIPE_FILE = "~/.config/pianobar/ctl"
+# require "sinatra/reloader" if development?
 
-  def self.log_length
-    `sed -n '$=' #{LOG_FILE}`.to_i
-  end
-
-  def self.now_playing
-
-  end
-
-  def self.send_keys(keys)
-    `echo '#{keys}' > #{PIPE_FILE}`
-  end
-
-  def self.send_command(cmd)
-    keys = COMMANDS[cmd]
-    result = send_keys(keys)
-  end
-end
+require './lib/pandora'
 
 get '/pandora' do
-  "Log length: #{Pandora.log_length}<br>" +
-  Pandora::COMMANDS.keys.map{|k| "<a href='/pandora/#{k}' target='_blank'>#{k}</a>"}.join("<br/>")
+  @@pandora ||= Pandora.new
+  slim :pandora
 end
 
+get '/pandora/song' do
+  @@pandora.song
+end
 
+get '/pandora/station' do
+  @@pandora.station
+end
+
+get '/pandora/explanation' do
+  @@pandora.explanation
+end
+
+get '/pandora/upcoming_songs' do
+  content_type :json
+  @@pandora.upcoming_songs.to_json
+end
 
 get '/pandora/:cmd' do
-  Pandora.send_command(params[:cmd]) || "ok (#{cmd})"
+  @@pandora.send_command(params[:cmd]) || "ok (#{params[:cmd]})"
+  redirect("/pandora")
 end
 
-
-get "/" do
-  "Hello Whirl"
-end
