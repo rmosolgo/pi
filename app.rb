@@ -11,6 +11,10 @@ set :port, 80
 
 require './lib/pandora'
 
+get "/" do
+  redirect "/pandora"
+end
+
 get '/pandora' do
   @@pandora ||= Pandora.new
   slim :pandora
