@@ -1,6 +1,11 @@
 require 'sinatra'
 require 'slim'
 require 'coffee-script'
+require 'thin'
+
+set :server, 'thin'
+set :bind, '0.0.0.0'
+set :port, 80
 
 # require "sinatra/reloader" if development?
 
